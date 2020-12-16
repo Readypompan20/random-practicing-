@@ -1,0 +1,248 @@
+Public Class ObjectCreator
+    Dim T20Data As New Database
+    Dim T20ConnectionString As String
+    Dim T20SQL As String
+    Dim T20DataSet As New DataSet
+    Dim tableName As String
+
+    '**************************************************************************************************************************
+    Public Sub CreateObjectsAndLists()
+        '
+        'RDB: Initialize the connection string to the database for this project
+        T20ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=|DataDirectory|\TP2 Group 20.mdb"
+        'RDB: Instantiate classes and set property values for the Seat
+        'RDB: First, we update data from the Seat table in the DataSet
+
+        'EDD: the table name and sql command is created based on the data set
+        tableName = "Discount_Condition"
+        T20SQL = "SELECT * FROM " & tableName
+        'EDD: the data is then run
+        T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+        'EDD: the data is now set in a discount condition object
+        For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+            Dim myDiscCond As New DiscountCondition
+            myDiscCond.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+            myDiscCond.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+            myDiscCond.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+            DiscountCondition.DiscCondList.Add(myDiscCond)
+        Next
+
+        'resets the table name and re-runs the SQL
+        tableName = "Discount_Flavor"
+        T20SQL = "SELECT * FROM " & tableName
+        T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+        'EDD: the data from the DiscountFlavor table in the dataset is now being transfered to an Object from the DiscountFlavor class
+        'EDD: runs as many rows as there are in the dataset
+        For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+            Dim myDiscFlav As New DiscountFlavor
+            myDiscFlav.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+            myDiscFlav.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+            myDiscFlav.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+            DiscountFlavor.DiscFlavList.Add(myDiscFlav)
+        Next
+
+        'resets the table name and re-runs the SQL
+        tableName = "Log-In"
+        T20SQL = "SELECT * FROM " & tableName
+        T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+        'EDD: the data from the LogIn table in the dataset is now being transfered to an Object from the LogIn class
+        'EDD: runs as many rows as there are in the dataset
+        For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+            Dim myLogIn As New LogIn
+            myLogIn.username = T20DataSet.Tables(tableName).Rows(rowNumber)("Username")
+            myLogIn.password = T20DataSet.Tables(tableName).Rows(rowNumber)("Password")
+            LogIn.LogInList.Add(myLogIn)
+        Next
+
+        'resets the table name and re-runs the SQL
+        tableName = "Order_Quantity"
+        T20SQL = "SELECT * FROM " & tableName
+        T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+        'EDD: the data from the OrderQuantity table in the dataset is now being transfered to an Object from the OrderQuantity class
+        'EDD: runs as many rows as there are in the dataset
+        For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+            Dim myOrderQuant As New OrderQuantity
+            myOrderQuant.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+            myOrderQuant.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+            myOrderQuant.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+            OrderQuantity.OrderQuantList.Add(myOrderQuant)
+        Next
+
+        'resets the table name and re-runs the SQL
+        tableName = "Paramater_Table"
+        T20SQL = "SELECT * FROM " & tableName
+        T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+        'EDD: the data from the ParamaterTable table in the dataset is now being transfered to an Object from the ParamaterTable class
+        'EDD: runs as many rows as there are in the dataset
+        For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+            Dim myParamTable As New ParamaterTable
+            myParamTable.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+            myParamTable.cost = T20DataSet.Tables(tableName).Rows(rowNumber)("cost")
+            myParamTable.price = T20DataSet.Tables(tableName).Rows(rowNumber)("price")
+            myParamTable.demandForcast = T20DataSet.Tables(tableName).Rows(rowNumber)("Demand forecast")
+            myParamTable.currentInventory = T20DataSet.Tables(tableName).Rows(rowNumber)("current inventory")
+            myParamTable.discount = T20DataSet.Tables(tableName).Rows(rowNumber)("Discount")
+            myParamTable.breakPoint = T20DataSet.Tables(tableName).Rows(rowNumber)("Break Point")
+            myParamTable.subGroup = T20DataSet.Tables(tableName).Rows(rowNumber)("Substitution Group")
+            ParamaterTable.ParamTableList.Add(myParamTable)
+        Next
+
+        'resets the table name and re-runs the SQL
+        tableName = "Previous_Profit"
+        T20SQL = "SELECT * FROM " & tableName
+        T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+        'EDD: the data from the PreviousProfit table in the dataset is now being transfered to an Object from the PreviousProfit class
+        'EDD: runs as many rows as there are in the dataset
+        For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+            Dim myPrevProf As New PreviousProfit
+            myPrevProf.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+            myPrevProf.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+            myPrevProf.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+            PreviousProfit.PrevProfList.Add(myPrevProf)
+        Next
+
+        'resets the table name and re-runs the SQL
+        tableName = "Profit"
+        T20SQL = "SELECT * FROM " & tableName
+        T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+        'EDD: the data from the Profit table in the dataset is now being transfered to an Object from the Profit class
+        'EDD: runs as many rows as there are in the dataset
+        For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+            Dim myProfit As New Profit
+            myProfit.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+            myProfit.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+            myProfit.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+            Profit.ProfitList.Add(myProfit)
+        Next
+
+        'resets the table name and re-runs the SQL
+        tableName = "Profit_By_Flavor"
+        T20SQL = "SELECT * FROM " & tableName
+        T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+        'EDD: the data from the ProfitByFlavor table in the dataset is now being transfered to an Object from the ProfitByFlavor class
+        'EDD: runs as many rows as there are in the dataset
+        For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+            Dim myProfFlav As New ProfitByFlavor
+            myProfFlav.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+            myProfFlav.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+            myProfFlav.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+            ProfitByFlavor.ProfFlavList.Add(myProfFlav)
+        Next
+
+
+            'resets the table name and re-runs the SQL
+            tableName = "Profit_Contribution"
+            T20SQL = "SELECT * FROM " & tableName
+            T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+            'PC: the data from the Profit_Contribution table in the dataset is now being transfered to an Object from the Profit_Contribution class
+            'PC: runs as many rows as there are in the dataset
+            For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+                Dim myProfContribution As New Profit_Contribution
+                myProfContribution.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+                myProfContribution.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+                myProfContribution.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+                Profit_Contribution.ProfitContList.Add(myProfContribution)
+            Next
+
+            'resets the table name and re-runs the SQL
+            tableName = "Sales_Flavor"
+            T20SQL = "SELECT * FROM " & tableName
+            T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+            'PC: the data from the Sales_Flavor table in the dataset is now being transfered to an Object from the Sales_Flavor class
+            'PC: runs as many rows as there are in the dataset
+            For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+                Dim mySales_Flavor As New Sales_Flavor
+                mySales_Flavor.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+                mySales_Flavor.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+                mySales_Flavor.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+                Sales_Flavor.Sales_FlavorList.Add(mySales_Flavor)
+            Next
+
+            'resets the table name and re-runs the SQL
+            tableName = "Stockout_Flavor"
+            T20SQL = "SELECT * FROM " & tableName
+            T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+            'PC: the data from the Stockout_Flavor table in the dataset is now being transfered to an Object from the Stockout_Flavor class
+            'PC: runs as many rows as there are in the dataset
+            For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+                Dim myStockoutFlav As New Stockout_Flavor
+                myStockoutFlav.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+                myStockoutFlav.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+                myStockoutFlav.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+                Stockout_Flavor.Stockout_FlavorList.Add(myStockoutFlav)
+            Next
+
+            'resets the table name and re-runs the SQL
+            tableName = "Stockout_Substitution_Group"
+            T20SQL = "SELECT * FROM " & tableName
+            T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+            'PC: the data from the Stockout_Substitution_Group table in the dataset is 
+            'PC: Now being transfered to an Object from the Stockout_Substitution_Group class
+            'PC: runs as many rows as there are in the dataset
+            For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+                Dim myStockoutSubGrp As New Stockout_Substitution_Group
+                myStockoutSubGrp.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+                myStockoutSubGrp.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+                myStockoutSubGrp.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+                Stockout_Substitution_Group.Stockout_SubGrpList.Add(myStockoutSubGrp)
+            Next
+
+            'resets the table name and re-runs the SQL
+            tableName = "Storage_Capacity"
+            T20SQL = "SELECT * FROM " & tableName
+            T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+            'PC: the data from the Storage_Capacity table in the dataset is now being transfered to an Object from the Storage_Capacity class
+            'PC: runs as many rows as there are in the dataset
+            For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+                Dim myStorageCap As New Storage_Capacity
+                myStorageCap.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+                myStorageCap.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+                myStorageCap.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+                Storage_Capacity.Storage_CapList.Add(myStorageCap)
+            Next
+
+            'resets the table name and re-runs the SQL
+            tableName = "Surplus_Demand"
+            T20SQL = "SELECT * FROM " & tableName
+            T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+            'PC: the data from the Surplus_Demand table in the dataset is now being transfered to an Object from the Surplus_Demand class
+            'PC: runs as many rows as there are in the dataset
+            For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+                Dim mySurplusDemand As New Surplus_Demand
+                mySurplusDemand.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+                mySurplusDemand.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+                mySurplusDemand.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+                Surplus_Demand.Suplus_DemandList.Add(mySurplusDemand)
+            Next
+
+            'resets the table name and re-runs the SQL
+            tableName = "Surplus_Storage"
+            T20SQL = "SELECT * FROM " & tableName
+            T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+            'PC: the data from the Surplus_Storage table in the dataset is now being transfered to an Object from the Surplus_Storage class
+            'PC: runs as many rows as there are in the dataset
+            For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+                Dim mySurplusStorage As New Surplus_Storage
+                mySurplusStorage.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+                mySurplusStorage.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+                mySurplusStorage.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+                Surplus_Storage.Surplus_StorageList.Add(mySurplusStorage)
+            Next
+
+            'resets the table name and re-runs the SQL
+            tableName = "Total_Profit_Growth"
+            T20SQL = "SELECT * FROM " & tableName
+            T20Data.RunSQL(tableName, T20SQL, T20DataSet, T20ConnectionString)
+            'PC: the data from the Total_Profit_Growth table in the dataset is now being transfered to an Object from the Total_Profit_Growth class
+            'PC: runs as many rows as there are in the dataset
+            For rowNumber As Integer = 0 To T20DataSet.Tables(tableName).Rows.Count - 1
+                Dim myTProfitGrowth As New Total_Profit_Growth
+                myTProfitGrowth.name = T20DataSet.Tables(tableName).Rows(rowNumber)("Name")
+                myTProfitGrowth.value = T20DataSet.Tables(tableName).Rows(rowNumber)("Value")
+                myTProfitGrowth.unitOfMeasurement = T20DataSet.Tables(tableName).Rows(rowNumber)("U/M")
+                Total_Profit_Growth.Total_GrowthList.Add(myTProfitGrowth)
+            Next
+
+    End Sub
+
+End Class

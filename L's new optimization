@@ -1,0 +1,181 @@
+Imports Microsoft.SolverFoundation.Common
+Imports Microsoft.SolverFoundation.Services
+Imports Microsoft.SolverFoundation.Solvers
+Public Class Optimization
+    Dim Solver As New SimplexSolver
+    Dim dvKey As String
+    Dim dvIndex As Integer
+    Dim coefficient As Single
+    Dim constraintKey As String
+    Dim constraintIndex As Integer
+    Dim objKey As String = "Objective Function"
+    Dim objIndex As Integer
+    Dim quant As Integer
+
+    '************************************************************************************
+    Public Sub BuildModel()
+        ' LNC: Define decision variables
+        For Each parm As Parameter_Table In Parameter_Table.ParameterList
+            For Each quan As Order_Quantity In Order_Quantity.OrderQuantList
+                dvKey = parm.flavor & "_" & quan.name
+                Solver.AddVariable(dvKey, dvIndex)
+                Solver.SetBounds(dvIndex, 0, Rational.PositiveInfinity)
+                Solver.SetIntegrality(quant, True)
+            Next
+
+        Next
+
+        'LNC: Create stockout constraint
+        For Each stock As Stockout_Flavor In Stockout_Flavor.Stockout_FlavorList
+            constraintKey = "Stockout Flavor Constraint" & "_" & stock.name
+            Solver.AddRow(constraintKey, constraintIndex)
+            For Each parm As Parameter_Table In Parameter_Table.ParameterList
+                '   If parm.flavor = stock.name Then
+                dvIndex = Solver.GetIndexFromKey(parm.flavor & "_" & stock.name)
+                coefficient = 1
+                    Solver.SetCoefficient(constraintIndex, dvIndex, coefficient)
+                '  End If
+            Next
+
+            Solver.SetBounds(constraintIndex, 0, 100)
+
+        Next
+
+        'LNC: Create surplus constraint
+        For Each surp As Surplus_Storage In Surplus_Storage.Surplus_StorageList
+            constraintKey = "Surplus Storage Constraint" & "_" & surp.name
+            Solver.AddRow(constraintKey, constraintIndex)
+            For Each parm As Parameter_Table In Parameter_Table.ParameterList
+                '  If parm.flavor = surp.name Then
+                dvIndex = Solver.GetIndexFromKey(parm.flavor & "_" & surp.name)
+                coefficient = 1
+                    Solver.SetCoefficient(constraintIndex, dvIndex, coefficient)
+                '  End If
+            Next
+            Solver.SetBounds(constraintIndex, 0, Rational.PositiveInfinity)
+        Next
+
+        'LNC: Budget constraint
+        For Each budg As Budget In Budget.BudgetList
+            constraintKey = "Budget constraint:" & "_" & budg.name
+            Solver.AddRow(constraintKey, constraintIndex)
+            For Each parm As Parameter_Table In Parameter_Table.ParameterList
+                '   If parm.flavor = budg.name Then
+                dvIndex = Solver.GetIndexFromKey(parm.flavor & "_" & budg.name)
+                coefficient = 1
+                    Solver.SetCoefficient(constraintIndex, dvIndex, coefficient)
+                '   End If
+            Next
+            Solver.SetBounds(constraintIndex, 0, budg.value)
+        Next
+
+        'LNC: Objective Function
+        Solver.AddRow(objKey, objIndex)
+
+        For Each parm As Parameter_Table In Parameter_Table.ParameterList
+            dvIndex = Solver.GetIndexFromKey(parm.flavor)
+            coefficient = CSng(parm.price - parm.cost)
+            Solver.SetCoefficient(objIndex, dvIndex, coefficient)
+        Next
+
+        Solver.AddGoal(objIndex, 0, False)
+    End Sub
+
+    Public Sub RunModel()
+        Dim mySolverParms As New SimplexSolverParams
+        mySolverParms.MixedIntegerGapTolerance = 1
+        mySolverParms.VariableFeasibilityTolerance = 0.0001
+        mySolverParms.MaxPivotCount = 1000
+        Solver.Solve(mySolverParms)
+
+        If Solver.Result = LinearResult.UnboundedPrimal Then
+            MessageBox.Show("Solution is unbounded")
+            Exit Sub
+        ElseIf _
+            Solver.Result = LinearResult.infeasibleprimal Then
+            MessageBox.Show("Decision model is infeasible")
+            Exit Sub
+        Else
+
+            Dim optimalObj As Single
+            Dim dvVales(Parameter_Table.ParameterList.Count - 1, Order_Quantity.OrderQuantList.Count - 1)
+            Dim rowIndex As Integer = 0
+            Dim columnIndex As Integer = 0
+            optimalObj = CSng(Solver.GetValue(objIndex).ToDouble)
+
+            For Each parm As Parameter_Table In Parameter_Table.ParameterList
+                rowIndex = Parameter_Table.ParameterList.IndexOf(parm)
+                For Each quan As Order_Quantity In Order_Quantity.OrderQuantList
+                    columnIndex = Order_Quantity.OrderQuantList.IndexOf(quan)
+                    dvKey = parm.flavor & "_" & quan.name
+                    dvIndex = Solver.GetIndexFromKey(dvKey)
+                    dvVales(rowIndex, columnIndex) = CSng(Solver.GetValue(dvIndex).ToDouble)
+                Next
+
+            Next
+
+            'PC: was trying to get the values of the solved function in order_quantity
+
+            'For Each flav As Order_Quantity In Order_Quantity.OrderQuantList
+            '    rowIndex = Order_Quantity.OrderQuantList.IndexOf(flav)
+            '    dvKey = flav.name
+            '    dvIndex = Solver.GetIndexFromKey(dvKey)
+            '    dvVales(rowIndex) = CSng(Solver.GetValue(dvIndex).ToDouble)
+            'Next
+
+
+            'LNC: Display the solution
+
+            'PC: commented out the testing code. 
+            'PC: code is sent to solution form in respective text boxes when button is clicked
+
+
+
+            'PC: Instance of solution class is made and the textbox for the optimal objective is given the value of the optiaml objective
+            Solution.MyInstance.txtObj.Text = optimalObj
+
+            'PC: Prints out the individual flavor values
+            Solution.MyInstance.txtFlav1.Text = dvVales(0, 0)
+            Solution.MyInstance.txtFlav2.Text = dvVales(0, 1)
+            ' Solution.MyInstance.txtFlav3.Text = dvVales(2)
+            'Solution.MyInstance.txtFlav4.Text = dvVales(3)
+            'Solution.MyInstance.txtFlav5.Text = dvVales(4)
+            'Solution.MyInstance.txtFlav6.Text = dvVales(5)
+            'Solution.MyInstance.txtFlav7.Text = dvVales(6)
+            'Solution.MyInstance.txtFlav8.Text = dvVales(7)
+            'Solution.MyInstance.txtFlav9.Text = dvVales(8)
+            'Solution.MyInstance.txtFlav10.Text = dvVales(9)
+
+            Dim sum As Single
+            For rowIndex = 0 To 9
+                sum += dvVales(rowIndex, columnIndex)
+            Next
+
+            'PC: Displays surplus storage
+            Dim sumcap As Single
+            For Each cap As Storage_Capacity In Storage_Capacity.Storage_CapList
+                For Each inv As Parameter_Table In Parameter_Table.ParameterList
+                    sumcap = (cap.value - sum - inv.currentInv)
+                Next
+            Next
+            Solution.MyInstance.txtSlkStorage.Text = sumcap
+
+            MessageBox.Show("capacity surplus:  " & sumcap)
+
+            'PC: Stock out
+            '  Solution.MyInstance.txtStockOut.Text = 
+
+            'PC: Budget
+            Dim bud As Double
+            For Each budge As Budget In Budget.BudgetList
+                bud = budge.value
+            Next
+            Solution.MyInstance.txtBudget.Text = bud
+
+        End If
+
+
+
+    End Sub
+
+End Class
